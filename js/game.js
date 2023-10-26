@@ -2,10 +2,6 @@ var pip;
 var myObstacles = [];
 var myScore;
 
-// Define Global Sounds
-var theme;
-var jump;
-
 var canvasWidth = 480;
 var canvasHeight = 270;
 var pWidth = 50;
@@ -21,8 +17,6 @@ function startGame() {
     jump = new sound("sfx/pip_jump.wav");
     hurt = new sound("sfx/pip_hurt.wav");
     duck = new sound("sfx/pip_duck.wav");
-    //theme = new sound("sfx/theme.wav");
-    //theme.play();
 
     game.start();
 }
