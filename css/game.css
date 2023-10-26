@@ -1,0 +1,32 @@
+body, html {
+    color: white;
+    background: black;
+}
+
+canvas {
+    width: 960px;
+    height: 540px;
+
+    image-rendering: pixelated;
+
+    display: flex;
+    margin: 0 auto;
+
+    border:1px solid #d3d3d3;
+    background: rgb(92,88,164);
+    background: linear-gradient(180deg, rgba(92,88,164,1) 30%, rgba(156,90,188,1) 100%);
+}
+
+h1,h2,h3 {
+    text-align: center;
+}
+
+button {
+    display: flex;
+    padding: 5px;
+    margin: 10px auto;
+}
+
+.sprite {
+    display: none;
+}
