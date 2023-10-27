@@ -1,14 +1,24 @@
-var pip;
 var myObstacles = [];
+var enemies = [];
 var myScore;
+var ghost;
+var pip;
 
 var canvasWidth = 480;
 var canvasHeight = 270;
-var pWidth = 50;
-var pHeight = 50;
+var pWidth = 30;
+var pHeight = 30;
+
+var ghostS = 20;
 
 function startGame() {
     pip = new player(pWidth, pHeight, 0 + pWidth*2, canvasHeight - pHeight);
+    ghost = new enemy(ghostS, ghostS, 50, 50, pip, "ghost");
+    //enemies.push( new enemy(ghostS, ghostS, 50, 50, pip, "ghost") );
+    //enemies.push( new enemy(ghostS, ghostS, 50, 50, enemies[0], "ghost") );
+    //enemies.push( new enemy(ghostS, ghostS, 50, 50, enemies[1], "ghost") );
+    //enemies.push( new enemy(ghostS, ghostS, 50, 50, enemies[2], "ghost") );
+    //enemies.push( new enemy(ghostS, ghostS, 50, 50, enemies[3], "ghost") );
     pip.gravity = 1;
 
     overlay = new interface(pip);
@@ -16,7 +26,9 @@ function startGame() {
     // Add sound effects and music
     jump = new sound("sfx/pip_jump.wav");
     hurt = new sound("sfx/pip_hurt.wav");
+    heal = new sound("sfx/pip_heal.wav");
     duck = new sound("sfx/pip_duck.wav");
+    squeak = new sound("sfx/ghost_squeak.wav");
 
     game.start();
 }
@@ -47,10 +59,11 @@ var game = {
 
 function player(width, height, x, y) {
   this.hearts = 3;
+  this.strength = 12;
+  this.ducking = false;
   this.score = 0;
   this.width = width;
   this.height = height;
-  this.strength = 16;
   this.speedX = 0;
   this.speedY = 0;
   this.x = x;
@@ -73,6 +86,56 @@ function player(width, height, x, y) {
     ctx.drawImage(img, this.x, this.y, this.width, this.height);
   }
 
+  this.move = function() {
+
+    var bottom = game.canvas.height - this.height;
+
+    // Jump
+    if (game.keys && game.keys[38]) {
+      if(pip.y >= bottom) {
+        this.speedY = -this.strength;
+        jump.play();
+      }
+    }
+
+    // Duck
+    if (game.keys && game.keys[40] || this.ducking) {
+      if(pip.y < bottom) {
+        pip.speedY = this.strength;
+      } else {
+        if (pip.height != pHeight / 2) {
+          duck.play();
+        }
+        // Ducking position
+        pip.height = pHeight / 2;
+        pip.y += pHeight / 2;
+      }
+    } else {
+      pip.height = pHeight;
+      pip.ducking = false;
+    }
+
+    // Right
+    if (game.keys && game.keys[39]) {
+      pip.speedX = this.strength / 2;
+    } else {
+      // Slow Down
+      if(pip.speedX > 0) {
+        pip.speedX -= this.strength/8;
+      }
+    }
+
+    // Left
+    if (game.keys && game.keys[37]) {
+      pip.speedX = 0 - this.strength / 2;
+    } else {
+      // Slow Down
+      if(pip.speedX < 0) {
+        pip.speedX += this.strength/8;
+      }
+    }
+  }
+
   this.newPos = function() {
     // Calc Y
     this.speedY += this.gravity;
@@ -89,6 +152,98 @@ function player(width, height, x, y) {
       this.speedY = 0;
     }
   }
+  this.hurt = function() {
+    // Detect if ya hit sometin
+    this.hearts -= 1;
+    hurt.play();
+  }
+  this.heal = function() {
+    // Detect if ya hit sometin
+    if(this.hearts < 3) {
+      this.hearts += 1;
+      heal.play();
+    }
+  }
+}
+
+function enemy(width, height, x, y, target, type) {
+  this.hearts = 3;
+  this.strength = 4;
+  this.width = width;
+  this.height = height;
+  this.speedX = 0;
+  this.speedY = 0;
+  this.x = x;
+  this.y = y;
+  this.target = target;
+  this.type = type;
+  this.hiding = false;
+  this.gravity = 0;
+
+  this.update = function() {
+    ctx = game.context;
+
+    // Control the transition point between animations
+    let animateDist = .5;
+
+    let img = document.getElementById(`${this.type}`);
+    if(this.speedY > animateDist && (this.speedX > -animateDist && this.speedX < animateDist)) {
+      img = document.getElementById(`down_${this.type}`);
+    }else if(this.speedY < -animateDist && (this.speedX > -animateDist && this.speedX < animateDist)) {
+      img = document.getElementById(`up_${this.type}`);
+    }else if(this.speedX < -animateDist) {
+      img = document.getElementById(`left_${this.type}`);
+    } else if (this.speedX > animateDist) {
+      img = document.getElementById(`right_${this.type}`);
+    }
+    ctx.drawImage(img, this.x, this.y, this.width, this.height);
+  }
+
+  this.move = function() {
+    //var distX = this.speedX = (pip.x - this.x)
+    //var distY = this.speedY = (pip.y - this.y)
+
+    // move at a percentage of strength based on distance
+     //this.speedX = ((distX) / 100) * this.strength;
+     //this.speedY = ((distY) / 100) * this.strength;
+
+    // if the ghost is hiding, only move after player gets a certain distance away
+    var distance = Math.sqrt(Math.pow(this.x - this.target.x, 2) + Math.pow(this.y - this.target.y, 2));
+    console.log(distance);
+
+    if(distance < 1) {
+      this.hiding = true;
+      return;
+    } else if(distance > 100 && this.hiding) {
+      this.hiding = false;
+      squeak.play();
+    }
+
+    if(this.hiding) {
+      this.speedX = 0;
+      this.speedY = 0;
+    } else {
+      // Determine where the player will be and move there instead
+      var distX = this.speedX = this.target.x + (this.target.speedX / 100 * this.target.strength) - this.x;
+      var distY = this.speedY = this.target.y + (this.target.speedY / 100 * this.target.strength) - this.y;
+
+      this.speedX = ((distX) / 100) * this.strength;
+      this.speedY = ((distY) / 100) * this.strength;
+    }
+  }
+
+  this.newPos = function() {
+    // Calc Y
+    // Add some jiggle
+    //var jiggle = Math.floor(Math.random() * 2)/2;
+    //var sign = Math.floor(Math.random() * 2)?1:-1;
+
+    //this.speedY += sign*jiggle;
+    this.y += this.speedY;
+
+    // Calc X
+    this.x += this.speedX;
+  }
 }
 
 function interface(pip) {
@@ -102,6 +257,8 @@ function interface(pip) {
   this.update = function() {
     ctx = game.context;
     let img = document.getElementById("heart");
+
+    this.hearts = pip.hearts;
 
     for(var i = 1;i<=this.hearts;i++){
       let offset = i*(this.padding+this.width);
@@ -117,57 +274,21 @@ function updateGame() {
   //if (game.keys && game.keys[37]) {pip.speedX = -10; }
   //if (game.keys && game.keys[39]) {pip.speedX = 10; }
 
-  var bottom = game.canvas.height - pip.height;
-  var strength = 16; // Must be even number
-
-  // Jump
-  if (game.keys && game.keys[38]) {
-    if(pip.y >= bottom) {
-      pip.speedY = -strength;
-      jump.play();
-    }
-  }
-  // Duck
-  if (game.keys && game.keys[40]) {
-    if(pip.y < bottom) {
-      pip.speedY = strength;
-    } else {
-      if (pip.height != pHeight / 2) {
-        duck.play();
-      }
-      // Ducking position
-      pip.height = pHeight / 2;
-      pip.y += pHeight / 2;
-    }
-  } else {
-    // Exit Ducking Position
-    pip.height = pHeight;
+  for(var i = enemies.length-1;i>=0;i--){
+    enemies[i].move();
+    enemies[i].newPos();
+    enemies[i].update();
   }
 
-  // Right
-  if (game.keys && game.keys[39]) {
-    pip.speedX = strength / 2;
-  } else {
-    // Slow Down
-    if(pip.speedX > 0) {
-      pip.speedX -= strength/8;
-    }
-  }
+  ghost.move();
+  ghost.newPos();
 
-  // Left
-  if (game.keys && game.keys[37]) {
-    pip.speedX = 0 - strength / 2;
-  } else {
-    // Slow Down
-    if(pip.speedX < 0) {
-      pip.speedX += strength/8;
-    }
-  }
-
+  pip.move();
   pip.newPos();
-  // Update his pos to calc damage before his position
-  overlay.update();
+
+  ghost.update();
   pip.update();
+  overlay.update();
 }
 
 
