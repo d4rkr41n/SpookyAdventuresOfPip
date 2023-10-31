@@ -4,8 +4,8 @@ body, html {
 }
 
 canvas {
-    width: 960px;
-    height: 540px;
+    width: auto;
+    height: 90%;
 
     image-rendering: pixelated;
 
