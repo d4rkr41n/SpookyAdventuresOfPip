@@ -179,10 +179,15 @@ function player(width, height, x, y) {
   }
 
   this.hitbox = function() {
-    let top = this.y + this.height * .45;
-    let right = this.x + this.width;
-    let bottom = this.y + this.height * .55;
-    let left = this.x;
+    let paddingTop = (this.height * 0.45);
+    let paddingBottom = (0) - paddingTop;
+    let paddingLeft = (this.width * 0.00);
+    let paddingRight = (0) - paddingLeft*2;
+
+    let top = this.y + paddingTop;
+    let right = this.x + this.width + paddingRight;
+    let bottom = this.y + this.height + paddingBottom;
+    let left = this.x + paddingLeft;
     return [top, right, bottom, left];
   }
 
@@ -195,6 +200,7 @@ function player(width, height, x, y) {
     // Calc X
     this.x += this.speedX;
   }
+
   this.hitBottom = function() {
     var bottom = game.canvas.height - this.height;
     if(this.y > bottom){
@@ -202,6 +208,7 @@ function player(width, height, x, y) {
       this.speedY = 0;
     }
   }
+
   this.hurt = function() {
     // Do the hurt player things
     // Check if immune
@@ -322,7 +329,9 @@ function zombie(width, height, x, y) {
 
     if(drawHitboxes) {
       // T R B L
+      // 0 1 2 3
       let hitbox = this.hitbox();
+
       ctx.fillStyle = 'green';
       ctx.fillRect(hitbox[3], hitbox[0], hitbox[1]-this.x, hitbox[2]-this.y);
     }
@@ -365,10 +374,15 @@ function zombie(width, height, x, y) {
   }
 
   this.hitbox = function() {
-    let top = this.y + this.height * .1;
-    let right = this.x + this.width*.8;
-    let bottom = this.y + this.height * .9;
-    let left = this.x + this.width*.2;
+    let paddingTop = (this.height * 0.05);
+    let paddingBottom = (0) - paddingTop;
+    let paddingLeft = (this.width * 0.20);
+    let paddingRight = (0) - paddingLeft*2;
+
+    let top = this.y + paddingTop;
+    let right = this.x + this.width + paddingRight;
+    let bottom = this.y + this.height + paddingBottom;
+    let left = this.x + paddingLeft;
     return [top, right, bottom, left];
   }
 
