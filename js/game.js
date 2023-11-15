@@ -11,12 +11,12 @@ var pHeight = 30;
 
 var ghostS = 20;
 
-var drawHitboxes = true;
+var drawHitboxes = false;
 
 function startGame() {
     pip = new player(pWidth, pHeight, 0 + pWidth*2, canvasHeight - pHeight-30);
     ghost = new fairy(ghostS, ghostS, 50, 50, pip);
-    enemies.push( new zombie(30, 30, 100, 100) );
+    enemies.push( new zombie(30, 30, 20, 100) );
     //enemies.push( new enemy(ghostS, ghostS, 50, 50, pip, "ghost") );
     //enemies.push( new enemy(ghostS, ghostS, 50, 50, enemies[0], "ghost") );
     //enemies.push( new enemy(ghostS, ghostS, 50, 50, enemies[1], "ghost") );
@@ -50,6 +50,15 @@ var game = {
         this.keydown = function (e) {
           game.keys = (game.keys || []);
           game.keys[e.keyCode] = true;
+
+          // Enable Hitboxes
+          if (game.keys && game.keys[66]) {
+            if(drawHitboxes == false) {
+              drawHitboxes = true;
+            } else {
+              drawHitboxes = false;
+            }
+          }
         };
         this.keyup = function (e) {
           game.keys[e.keyCode] = false;
@@ -115,16 +124,16 @@ function player(width, height, x, y) {
       }
       this.iframes -= 1;
     }
+    ctx.drawImage(img, this.x, this.y, this.width, this.height);
 
     if(drawHitboxes) {
       // T R B L
       // 0 1 2 3
       let hitbox = this.hitbox();
       ctx.fillStyle = 'blue';
+      ctx.globalAlpha = 0.4;
       ctx.fillRect(hitbox[3], hitbox[0], hitbox[1]-this.x, hitbox[2]-this.y);
     }
-
-    ctx.drawImage(img, this.x, this.y, this.width, this.height);
     ctx.globalAlpha = 1;
   }
 
@@ -326,17 +335,19 @@ function zombie(width, height, x, y) {
     } else {
       img = document.getElementById(`right_zombie`);
     }
+    ctx.drawImage(img, this.x, this.y, this.width, this.height);
 
     if(drawHitboxes) {
       // T R B L
       // 0 1 2 3
+      ctx.globalAlpha = 0.4;
       let hitbox = this.hitbox();
 
       ctx.fillStyle = 'green';
       ctx.fillRect(hitbox[3], hitbox[0], hitbox[1]-this.x, hitbox[2]-this.y);
     }
+    ctx.globalAlpha = 1;
 
-    ctx.drawImage(img, this.x, this.y, this.width, this.height);
   }
 
   this.move = function() {
@@ -457,7 +468,10 @@ function sound(src) {
 }
 
 var collision = {
+  // T R B L
+  // 0 1 2 3
   collide: function (el1, el2) {
+    // Every case where there isn't a collision possible
     return !(
       el1[0] > el2[2] ||
       el1[1] < el2[3] ||
@@ -467,6 +481,7 @@ var collision = {
   },
 
   inside: function (el1, el2) {
+    // Every condition to be inside of each other
     return (
       ((el2[0] <= el1[0]) && (el1[0] <= el2[2])) &&
       ((el2[0] <= el1[2]) && (el1[2] <= el2[2])) &&
