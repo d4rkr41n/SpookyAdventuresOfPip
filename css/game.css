@@ -1,32 +1,33 @@
+:root {
+  --fg: #ffffff;
+  --bg: #000000;
+  --accent: #d3d3d3;
+}
+
 body, html {
-    color: white;
-    background: black;
+  color: var(--fg);
+  background: var(--bg);
 }
 
 canvas {
-    width: auto;
-    height: 90%;
+  border:1px solid var(--accent);
+  background: rgb(92,88,164);
+  background: linear-gradient(180deg, rgba(92,88,164,1) 30%, rgba(156,90,188,1) 100%);
 
-    image-rendering: pixelated;
+  image-rendering: pixelated;
 
-    display: flex;
-    margin: 0 auto;
-
-    border:1px solid #d3d3d3;
-    background: rgb(92,88,164);
-    background: linear-gradient(180deg, rgba(92,88,164,1) 30%, rgba(156,90,188,1) 100%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: auto;
 }
 
 h1,h2,h3 {
-    text-align: center;
+  text-align: center;
 }
 
-button {
-    display: flex;
-    padding: 5px;
-    margin: 10px auto;
-}
-
-.sprite {
-    display: none;
+.sprites {
+  display: none;
 }
