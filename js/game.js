@@ -23,10 +23,16 @@ window.addEventListener('load', function() {
 
       this.hitboxes = false;
 
-      this.map = new Map(this, "start");
-      this.player = new Player(this, this.map, 100, 0);
-      this.ghost = new Ghost(this, this.map, 100, 0, this.player);
-      this.zombie = new Zombie(this, this.map, 100, 0);
+      this.map = new Map(this, "arcadia");
+      this.map.player = new Player(this, this.map, this.map.map.spawn.x, this.map.map.spawn.y);
+      this.map.ghost = new Ghost(this, this.map, this.map.map.spawn.x, this.map.map.spawn.y, this.map.player);
+
+      for(var i = 0;i < this.map.enemies.length;i++) {
+        let enemy = this.map.enemies[i];
+        let x = enemy.x;
+        let y = enemy.y;
+        enemy.entity = new Zombie(this, this.map, x, y);
+      }
 
       this.ui = new UI(this, this.map);
       this.audio = new AudioHandler();
@@ -34,20 +40,31 @@ window.addEventListener('load', function() {
     }
     update() {
       this.frame++;
-      this.player.update(this.input.keys, this.audio);
-      this.ghost.update(this.audio);
-      this.zombie.update(this.audio);
+      this.map.player.update(this.input.keys, this.audio);
+      this.map.ghost.update(this.audio);
 
-      this.ui.update(this.audio);
+      // Update enemies in the current map
+      for(var i = 0;i < this.map.enemies.length;i++) {
+        let entity = this.map.enemies[i].entity;
+        entity.update(this.audio);
+      }
+
+      this.ui.update(this);
     }
     draw(ctx) {
       this.clear(ctx);
       this.map.draw(ctx);
-      this.ghost.draw(ctx, this.hitboxes);
-      this.player.draw(ctx, this.hitboxes);
-      this.zombie.draw(ctx, this.hitboxes);
 
-      this.ui.draw(ctx, this.player);
+      // Update enemies in the current map
+      for(var i = 0;i < this.map.enemies.length;i++) {
+        let entity = this.map.enemies[i].entity;
+        entity.draw(ctx, this.hitboxes);
+      }
+
+      this.map.ghost.draw(ctx, this.hitboxes);
+      this.map.player.draw(ctx, this.hitboxes);
+
+      this.ui.draw(ctx, this.map.player);
     }
     clear(ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);

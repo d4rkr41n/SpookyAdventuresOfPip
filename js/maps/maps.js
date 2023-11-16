@@ -1,14 +1,14 @@
+import data from './arcadia.js';
 export class Map {
   constructor(game, mapName) {
     this.game = game;
-    this.map = mapName;
-    this.gravity = 1;
-    // x, y, w, h
-    this.platforms = [
-      {x: 150, y: 200, w: 100, h: 10},
-      {x: 100, y: 220, w: 100, h: 10},
-      {x: 0, y: game.height-10, w: game.width, h: 10}
-    ]
+    this.map = data.data;
+    this.player = null;
+    this.ghost = null;
+    this.mapName = mapName;
+    this.platforms = this.map['platforms'];
+    this.enemies = this.map['enemies'];
+    this.gravity = this.map.gravity;
   }
   draw(ctx) {
     for(var i = 0;i < this.platforms.length;i++) {

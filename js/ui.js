@@ -22,11 +22,24 @@ export class UI {
 
 
     // Frame Counter
-    //ctx.font = "10px Arial";
-    //ctx.fillText(this.game.frame, 0, 10);
-
+    if(this.game.hitboxes) {
+      ctx.fillStyle = 'black';
+      ctx.font = "10px Arial";
+      ctx.fillText(this.game.frame, 0, 10);
+    }
   }
-  update(entity) {
-    this.hearts = entity.hearts;
+  update(game) {
+    this.game = game;
+    this.hearts = this.game.map.player.hearts;
+
+    // TODO: Adjust this later so players can long press 'b' with the same effects
+    let keys = this.game.input.keys;
+    if(keys.includes('b')) {
+      if(this.game.hitboxes) {
+        this.game.hitboxes = false;
+      } else {
+        this.game.hitboxes = true;
+      }
+    }
   }
 }

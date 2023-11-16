@@ -1,3 +1,4 @@
+import Entity from './entity.js';
 export class Player {
   constructor(game, map, x, y) {
     this.game = game;
@@ -10,6 +11,10 @@ export class Player {
     this.speedY = 0;
     this.x = x;
     this.y = y;
+    this.hitbox = Entity.hitbox;
+    this.padding = function(w, h) {
+      return {t:h/3, b:0, l:1, r:1};
+    };
   }
 
   update(input, audio) {
@@ -25,10 +30,12 @@ export class Player {
       this.speedX += 1;
     } else if(this.speedX > 0) {
       this.speedX -= 1;
+    } else {
+      this.speedX = 0;
     }
 
     // Jump
-    if(input.includes('ArrowUp') && this.y == floor) {
+    if(input.includes('ArrowUp') && this.y == floor && this.speedY == 0) {
       this.speedY = -this.speed*2;
       audio.play("pip_jump");
     }
@@ -92,18 +99,12 @@ export class Player {
     ctx.drawImage(img, this.x, this.y, this.width, this.height);
 
     if(hitboxes) {
-      // T R B L
-      // 0 1 2 3
-      let hitbox = this.hitbox();
+      let hitbox = this.hitbox(this);
+      let padding = this.padding(this.width, this.height);
       ctx.fillStyle = 'blue';
       ctx.globalAlpha = 0.4;
-
-      //ctx.fillRect(hitbox[3], hitbox[0], hitbox[1]-this.x, hitbox[2]-this.y);
-      ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.fillRect(hitbox.l, hitbox.t, hitbox.r-this.x-padding.l, hitbox.b-this.y-padding.t);
     }
     ctx.globalAlpha = 1;
-  }
-
-  hitbox() {
   }
 }
