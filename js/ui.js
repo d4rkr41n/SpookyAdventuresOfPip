@@ -8,6 +8,7 @@ export class UI {
     this.padding = 5;
     this.x = this.game.width;
     this.y = 0;
+    this.devtools = false; // Used to toggle state on hitboxes
   }
 
   draw(ctx, entity) {
@@ -32,14 +33,17 @@ export class UI {
     this.game = game;
     this.hearts = this.game.map.player.hearts;
 
-    // TODO: Adjust this later so players can long press 'b' with the same effects
     let keys = this.game.input.keys;
     if(keys.includes('b')) {
-      if(this.game.hitboxes) {
+      if(this.game.hitboxes && !this.devtools) {
         this.game.hitboxes = false;
-      } else {
+        this.devtools = true;
+      } else if(!this.game.hitboxes && !this.devtools) {
         this.game.hitboxes = true;
+        this.devtools = true;
       }
+    } else {
+      this.devtools = false;
     }
   }
 }

@@ -14,6 +14,15 @@ export class Ghost {
     this.scared = 0;
   }
   update(audio) {
+    // This is in case the ghost is tracking a single point instead of another entity
+    if(this.target.speedX === undefined) {
+      this.target.speedX = 0;
+    } if(this.target.speedY === undefined) {
+      this.target.speedY = 0;
+    } if(this.target.speed === undefined) {
+      this.target.speed = 0;
+    }
+
     // if the ghost is hiding, only move after player gets a certain distance away
     let distance = Math.sqrt(Math.pow(this.x - this.target.x, 2) + Math.pow(this.y - this.target.y, 2));
 

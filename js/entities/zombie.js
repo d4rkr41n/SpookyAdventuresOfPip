@@ -43,8 +43,8 @@ export class Zombie {
     this.speedY += this.map.gravity;
 
     // if skipping the platform when falling, set to platform
-    if(this.y <= floor && this.y+this.speedY >= floor) {
-      this.y = floor;
+    if(this.y+this.height <= floor && this.y+this.height+this.speedY >= floor) {
+      this.y = floor-this.height;
       this.speedY = 0;
     } else {
       this.y += this.speedY;

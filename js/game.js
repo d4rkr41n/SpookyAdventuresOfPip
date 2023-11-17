@@ -23,7 +23,28 @@ window.addEventListener('load', function() {
 
       this.hitboxes = false;
 
-      this.map = new Map(this, "arcadia");
+      this.map = new Map(this, 'arcadia');
+      this.map.player = new Player(this, this.map, this.map.map.spawn.x, this.map.map.spawn.y);
+      this.map.ghost = new Ghost(this, this.map, this.map.map.spawn.x, this.map.map.spawn.y, this.map.player);
+      // Make the ghost stay at a certain point on the map example...
+      //this.map.ghost = new Ghost(this, this.map, this.map.map.spawn.x, this.map.map.spawn.y, {x:300, y:150});
+
+      for(var i = 0;i < this.map.enemies.length;i++) {
+        let enemy = this.map.enemies[i];
+        let x = enemy.x;
+        let y = enemy.y;
+
+        if(enemy.type === 'zombie') {
+          enemy.entity = new Zombie(this, this.map, x, y);
+        }
+      }
+
+      this.ui = new UI(this, this.map);
+      this.audio = new AudioHandler();
+      this.input = new InputHandler();
+    }
+    loadMap(mapName) {
+      this.map = new Map(this, mapName);
       this.map.player = new Player(this, this.map, this.map.map.spawn.x, this.map.map.spawn.y);
       this.map.ghost = new Ghost(this, this.map, this.map.map.spawn.x, this.map.map.spawn.y, this.map.player);
 
@@ -31,14 +52,16 @@ window.addEventListener('load', function() {
         let enemy = this.map.enemies[i];
         let x = enemy.x;
         let y = enemy.y;
-        enemy.entity = new Zombie(this, this.map, x, y);
+        if(enemy.type === 'zombie') {
+          enemy.entity = new Zombie(this, this.map, x, y);
+        }
       }
 
       this.ui = new UI(this, this.map);
       this.audio = new AudioHandler();
       this.input = new InputHandler();
     }
-    update() {
+    update(ctx) {
       this.frame++;
       this.map.player.update(this.input.keys, this.audio);
       this.map.ghost.update(this.audio);

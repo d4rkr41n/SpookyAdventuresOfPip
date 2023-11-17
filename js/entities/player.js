@@ -19,7 +19,15 @@ export class Player {
 
   update(input, audio) {
 
+    // TODO: Make ceiling and floor based on hitbox
+    //let h = this.hitbox;
+    //let width = h.r-h.l;
+    //let height = h.b-h.t;
+
+    //let floor = this.map.floor(h.l, h.t, width, height);
+    //let ceiling = this.map.ceiling(h.l, h.t, h.r-h.l, h.b-h.t);
     let floor = this.map.floor(this.x, this.y, this.width, this.height);
+    let ceiling = this.map.ceiling(this.x, this.y, this.width, this.height);
 
     // Left / Right
     if(input.includes('ArrowRight') && this.speedX < this.speed) {
@@ -35,14 +43,14 @@ export class Player {
     }
 
     // Jump
-    if(input.includes('ArrowUp') && this.y == floor && this.speedY == 0) {
+    if(input.includes('ArrowUp') && this.y+this.height == floor && this.speedY == 0) {
       this.speedY = -this.speed*2;
       audio.play("pip_jump");
     }
 
     // Down
     if(input.includes('ArrowDown')) {
-      if(this.y < floor) {
+      if(this.y+this.height < floor) {
         // Speed Fall
         this.speedY += 1;
       } else {
@@ -69,8 +77,13 @@ export class Player {
     this.speedY += this.map.gravity;
 
     // if skipping the platform when falling, set to platform
-    if(this.y <= floor && this.y+this.speedY >= floor) {
-      this.y = floor;
+    if(this.y+this.height <= floor && this.y+this.height+this.speedY >= floor) {
+      // Land on platforms
+      this.y = floor-this.height;
+      this.speedY = 0;
+    } else if(this.y >= ceiling && this.y+this.speedY <= ceiling) {
+      // Hit your head on platforms
+      this.y = ceiling;
       this.speedY = 0;
     } else {
       this.y += this.speedY;
@@ -104,6 +117,15 @@ export class Player {
       ctx.fillStyle = 'blue';
       ctx.globalAlpha = 0.4;
       ctx.fillRect(hitbox.l, hitbox.t, hitbox.r-this.x-padding.l, hitbox.b-this.y-padding.t);
+
+      // Draw Floor Marker
+      let floor = this.map.floor(this.x, this.y, this.width, this.height);
+      ctx.fillStyle = 'yellow';
+      ctx.fillRect(this.x, floor, this.width, 10);
+
+      // Draw Ceiling Marker
+      let ceiling = this.map.ceiling(this.x, this.y, this.width, this.height);
+      ctx.fillRect(this.x, ceiling, this.width, 10);
     }
     ctx.globalAlpha = 1;
   }
