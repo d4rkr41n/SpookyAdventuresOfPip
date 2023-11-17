@@ -21,12 +21,12 @@ export class UI {
       ctx.drawImage(img, this.x - offset, this.y+this.padding, this.width, this.height);
     }
 
-
     // Frame Counter
     if(this.game.hitboxes) {
       ctx.fillStyle = 'black';
       ctx.font = "10px Arial";
-      ctx.fillText(this.game.frame, 0, 10);
+      ctx.fillText("FPS: " + this.game.frame, 0, 10);
+      ctx.fillText("LVL: " + this.game.map.map.name, 0, 20);
     }
   }
   update(game) {
