@@ -19,7 +19,12 @@ export class Zombie {
   }
 
   update(audio) {
-    let floor = this.map.floor(this.x, this.y, this.width, this.height);
+    let h = this.hitbox(this);
+    let width = h.r-h.l;
+    let height = h.b-h.t;
+    let padding = this.padding(this.width, this.height);
+    let floor = this.map.floor(h.l, h.t, width, height);
+    let ceiling = this.map.ceiling(h.l, h.t, width, height);
 
     let frameRand = Math.floor(Math.random() * 5) + 40;
     if(this.game.frame % frameRand == 0) {
@@ -37,20 +42,29 @@ export class Zombie {
     this.x += this.speedX;
 
     // Recalc the floor
-    floor = this.map.floor(this.x, this.y, this.width, this.height);
+    h = this.hitbox(this);
+    width = h.r-h.l;
+    height = h.b-h.t;
+    padding = this.padding(this.width, this.height);
+    floor = this.map.floor(h.l, h.t, width, height);
+    ceiling = this.map.ceiling(h.l, h.t, width, height);
 
     // Gravity
     this.speedY += this.map.gravity;
 
     // if skipping the platform when falling, set to platform
-    if(this.y+this.height <= floor && this.y+this.height+this.speedY >= floor) {
-      this.y = floor-this.height;
+    if(h.b > floor || h.b+this.speedY >= floor) {
+      // Land on platforms
+      this.y = floor - this.height + padding.b;
+      this.speedY = 0;
+    } else if(h.t < ceiling || h.t+this.speedY <= ceiling) {
+      // Hit your head on platforms
+      this.y = ceiling - padding.t;
       this.speedY = 0;
     } else {
       this.y += this.speedY;
     }
   }
-
 
   draw(ctx, hitboxes) {
     let img = document.getElementById(`left_zombie`);
