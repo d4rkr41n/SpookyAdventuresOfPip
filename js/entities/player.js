@@ -119,24 +119,25 @@ export class Player {
     if(hitboxes) {
       let hitbox = this.hitbox(this);
       let padding = this.padding(this.width, this.height);
-      ctx.fillStyle = 'blue';
+      ctx.fillStyle = 'green';
       ctx.globalAlpha = 0.4;
       ctx.fillRect(hitbox.l, hitbox.t, hitbox.r-this.x-padding.l, hitbox.b-this.y-padding.t);
 
-      ctx.fillStyle = 'green';
+      ctx.fillStyle = 'red';
       // Mark the Top
       ctx.fillRect(hitbox.l, hitbox.t, hitbox.r-this.x-padding.l, 2);
-      ctx.fillStyle = 'red';
       // Mark the Bottom
       ctx.fillRect(hitbox.l, hitbox.b, hitbox.r-this.x-padding.l, -2);
 
       // Draw Floor Marker
-      let floor = this.map.floor(this.x, this.y, this.width, this.height);
+      //let floor = this.map.floor(this.x, this.y, this.width, this.height);
+      let floor = this.map.floor(hitbox.l, hitbox.t, hitbox.r-hitbox.l, hitbox.b-hitbox.t);
       ctx.fillStyle = 'yellow';
       ctx.fillRect(this.x, floor, this.width, 10);
 
       // Draw Ceiling Marker
-      let ceiling = this.map.ceiling(this.x, this.y, this.width, this.height);
+      //let ceiling = this.map.ceiling(this.x, this.y, this.width, this.height);
+      let ceiling = this.map.ceiling(hitbox.l, hitbox.t, hitbox.r-hitbox.l, hitbox.b-hitbox.t);
       ctx.fillRect(this.x, ceiling, this.width, 10);
     }
     ctx.globalAlpha = 1;
